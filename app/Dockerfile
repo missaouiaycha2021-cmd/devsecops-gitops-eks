@@ -7,7 +7,7 @@ COPY requirements.txt .
 #télécharger et installer toutes les bibliothèques Python nécessaires à ton application dans lenvironnement Python du conteneur Docker.
 RUN pip install --no-cache-dir -r requirements.txt 
 
-//copier le fichier app.py depuis ton ordinateur vers le dossier /app à lintérieur de limage Docker.
+#copier le fichier app.py depuis ton ordinateur vers le dossier /app à lintérieur de limage Docker.
 
 COPY app.py . 
 #créer un nouvel utilisateur Linux appelé appuser à lintérieur de limage Docker.

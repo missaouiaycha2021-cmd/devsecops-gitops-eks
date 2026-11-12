@@ -1,0 +1,7 @@
+#les informations du chart
+apiVersion: v2
+name: mon-app
+description: Application Flask Bienvenue
+type: application
+version: 0.1.0
+appVersion: "1.0"

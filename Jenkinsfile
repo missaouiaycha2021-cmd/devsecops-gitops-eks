@@ -7,6 +7,7 @@ pipeline {
         IMAGE          = "${DOCKERHUB_USER}/${APP_NAME}"
         TAG            = "${BUILD_NUMBER}"
         APP_DIR        = 'app'
+        DEPLOY_EKS     = 'false'   // passer a 'true' quand EKS + aws-creds sont prets
 
         // A adapter pour le deploiement sur EKS
         AWS_REGION     = 'eu-west-3'
@@ -52,20 +53,19 @@ pipeline {
         //     }
         // }
 
-        stage('Snyk - Dependances') {
-            steps {
-                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    // || true : le pipeline continue meme si des vulnerabilites sont trouvees (lab)
-                    dir("${APP_DIR}") {
-                        sh 'snyk test --file=requirements.txt --severity-threshold=high || true'
-                    }
-                }
-            }
-        }
-
         stage('Docker Build') {
             steps {
                 sh 'docker build -t ${IMAGE}:${TAG} -t ${IMAGE}:latest ${APP_DIR}'
+            }
+        }
+
+        stage('Snyk - Image') {
+            steps {
+                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                    // Analyse l'image (OS + dependances Python), sans installer les paquets sur la VM
+                    // || true : le pipeline continue meme si des vulnerabilites sont trouvees (lab)
+                    sh 'snyk container test ${IMAGE}:${TAG} --file=${APP_DIR}/Dockerfile --severity-threshold=high || true'
+                }
             }
         }
 
@@ -91,6 +91,7 @@ pipeline {
         }
 
         stage('Deploy EKS (Helm)') {
+            when { environment name: 'DEPLOY_EKS', value: 'true' }
             steps {
                 // 'aws-creds' = credentials AWS dans Jenkins (plugin AWS Credentials)
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',

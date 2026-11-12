@@ -6,6 +6,7 @@ pipeline {
         APP_NAME       = 'flask-app'
         IMAGE          = "${DOCKERHUB_USER}/${APP_NAME}"
         TAG            = "${BUILD_NUMBER}"
+        APP_DIR        = 'app'
 
         // A adapter pour le deploiement sur EKS
         AWS_REGION     = 'eu-west-3'
@@ -55,14 +56,16 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                     // || true : le pipeline continue meme si des vulnerabilites sont trouvees (lab)
-                    sh 'snyk test --file=requirements.txt --severity-threshold=high || true'
+                    dir("${APP_DIR}") {
+                        sh 'snyk test --file=requirements.txt --severity-threshold=high || true'
+                    }
                 }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t ${IMAGE}:${TAG} -t ${IMAGE}:latest .'
+                sh 'docker build -t ${IMAGE}:${TAG} -t ${IMAGE}:latest ${APP_DIR}'
             }
         }
 

@@ -1,6 +1,5 @@
-#les informations du chart
 apiVersion: v2
-name: mon-app
+name: flask-app
 description: Application Flask Bienvenue
 type: application
 version: 0.1.0

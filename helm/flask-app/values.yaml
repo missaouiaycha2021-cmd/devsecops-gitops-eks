@@ -1,0 +1,11 @@
+replicaCount: 2
+
+image:
+  repository: aycha123/flask-app
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8080

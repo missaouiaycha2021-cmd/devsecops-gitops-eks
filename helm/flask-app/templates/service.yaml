@@ -1,4 +1,3 @@
-#exposer l'application:Son rôle est de permettre aux utilisateurs ou aux autres composants Kubernetes d'accéder aux Pods.
 apiVersion: v1
 kind: Service
 metadata:

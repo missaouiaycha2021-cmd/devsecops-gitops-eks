@@ -1,9 +1,13 @@
-.venv/
-__pycache__/
-*.pyc
-.pytest_cache/
-*.tfstate
-*.tfstate.*
-*.tfvars
-.terraform/
-.env
+# Terraform
+*.tfplan
+crash.log
+infra_backup/
+
+# Clés et secrets
+*.pem
+*.key
+id_*
+
+# Divers
+.scannerwork/
+.DS_Store

@@ -10,14 +10,11 @@ output "cluster_endpoint" {
   value = aws_eks_cluster.main.endpoint
 }
 
+# Wazuh (vide si enable_wazuh_lab = false)
 output "wazuh_public_ip" {
   value = one(aws_eip.wazuh[*].public_ip)
 }
 
 output "wazuh_private_ip" {
   value = one(aws_instance.wazuh[*].private_ip)
-}
-
-output "target_public_ip" {
-  value = one(aws_instance.target[*].public_ip)
 }

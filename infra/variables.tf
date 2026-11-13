@@ -9,10 +9,11 @@ variable "cluster_name" {
   default = "devsecops-eks"
 }
 
-# ---- Phase 9 ----
+# ---- Phase 9 : Wazuh ----
 variable "enable_wazuh_lab" {
-  type    = bool
-  default = false
+  type        = bool
+  description = "Crée le serveur Wazuh si true"
+  default     = false
 }
 
 variable "my_ip" {
@@ -22,6 +23,7 @@ variable "my_ip" {
 }
 
 variable "ssh_public_key_path" {
-  type    = string
-  default = "~/.ssh/id_ed25519.pub"
+  type        = string
+  description = "Chemin de la clé publique SSH pour le serveur Wazuh"
+  default     = "~/.ssh/id_ed25519.pub"
 }

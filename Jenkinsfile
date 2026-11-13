@@ -7,13 +7,8 @@ pipeline {
         IMAGE          = "${DOCKERHUB_USER}/${APP_NAME}"
         TAG            = "${BUILD_NUMBER}"
         APP_DIR        = 'app'
-        DEPLOY_EKS     = 'false'   // passer a 'true' quand EKS + aws-creds sont prets
-
-        // A adapter pour le deploiement sur EKS
-        AWS_REGION     = 'eu-west-3'
-        EKS_CLUSTER    = 'mon-cluster-eks'
-        HELM_RELEASE   = 'flask-app'
-        HELM_CHART     = './helm/flask-app'
+        GITOPS_REPO    = 'github.com/missaouiaycha2021-cmd/devsecops-gitops-eks.git'
+        VALUES_FILE    = 'helm/flask-app/values.yaml'
     }
 
     options {
@@ -90,18 +85,19 @@ pipeline {
             }
         }
 
-        stage('Deploy EKS (Helm)') {
-            when { environment name: 'DEPLOY_EKS', value: 'true' }
+        // CD gere par ArgoCD : Jenkins met seulement a jour le tag de l'image dans Git
+        stage('Update GitOps (tag image)') {
             steps {
-                // 'aws-creds' = credentials AWS dans Jenkins (plugin AWS Credentials)
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                                  credentialsId: 'aws-creds']]) {
+                withCredentials([usernamePassword(credentialsId: 'github-creds',
+                                                  usernameVariable: 'GIT_USER',
+                                                  passwordVariable: 'GIT_TOKEN')]) {
                     sh '''
-                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER}
-                        helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
-                          --set image.repository=${IMAGE} \
-                          --set image.tag=${TAG} \
-                          --wait --timeout 5m
+                        git config user.email "jenkins@local"
+                        git config user.name "jenkins"
+                        sed -i "s|^  tag: .*|  tag: \\"${TAG}\\"|" ${VALUES_FILE}
+                        git add ${VALUES_FILE}
+                        git commit -m "ci: image tag ${TAG}" || echo "Rien a commiter"
+                        git push https://${GIT_USER}:${GIT_TOKEN}@${GITOPS_REPO} HEAD:main
                     '''
                 }
             }
@@ -114,7 +110,7 @@ pipeline {
             sh 'docker image prune -f || true'
         }
         success {
-            echo "Pipeline OK : ${IMAGE}:${TAG} deploye."
+            echo "Pipeline OK : ${IMAGE}:${TAG} poussee, ArgoCD deploiera le nouveau tag."
         }
         failure {
             echo 'Pipeline en echec : consulte les logs du stage concerne.'

@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: aycha123/flask-app
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "8"
 
 service:
   type: LoadBalancer

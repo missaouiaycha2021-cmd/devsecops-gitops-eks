@@ -1,5 +1,6 @@
 #permet a docker dutiliser cette image pour exécuter le code python qui se touve dans docker hub
 FROM python:3.12-slim 
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 #Pour définir un dossier /app à lintérieur du conteneur Docker, afin placer les fichiers de notre application et de travailler depuis ce dossier.
 WORKDIR /app    
 #copier le fichier requirements.txt depuis ton ordinateur vers le dossier /app à lintérieur de limage Docker contient les bibliothèques Python nécessaires à ton application

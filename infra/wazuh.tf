@@ -1,6 +1,6 @@
 ###############################################################################
 # Phase 9 : Wazuh (créé seulement si enable_wazuh_lab = true)
-# L'EC2 "cible" est supprimée : les agents tournent sur les nœuds EKS.
+# L'EC2 "cible" est supprimée : les agents tournent sur les noeuds EKS.
 ###############################################################################
 # Image Ubuntu 22.04
 data "aws_ami" "ubuntu" {
@@ -20,7 +20,7 @@ resource "aws_key_pair" "lab" {
   public_key = file(pathexpand(var.ssh_public_key_path))
 }
 
-# Security Group de Wazuh : 443 et 22 depuis ton IP, 1514/1515 depuis les nœuds EKS
+# Security Group de Wazuh : 443 et 22 depuis ton IP, 1514/1515 depuis les noeuds EKS
 resource "aws_security_group" "wazuh" {
   count       = var.enable_wazuh_lab ? 1 : 0
   name        = "${var.cluster_name}-wazuh-sg"
@@ -45,7 +45,7 @@ resource "aws_security_group" "wazuh" {
 
   # Les nœuds du groupe managé utilisent le security group du cluster EKS
   ingress {
-    description     = "Agent events (nœuds EKS)"
+    description     = "Agent events (noeuds EKS)"
     from_port       = 1514
     to_port         = 1514
     protocol        = "tcp"
@@ -53,7 +53,7 @@ resource "aws_security_group" "wazuh" {
   }
 
   ingress {
-    description     = "Agent enrollment (nœuds EKS)"
+    description     = "Agent enrollment (noeuds EKS)"
     from_port       = 1515
     to_port         = 1515
     protocol        = "tcp"
@@ -72,7 +72,7 @@ resource "aws_security_group" "wazuh" {
 resource "aws_instance" "wazuh" {
   count                  = var.enable_wazuh_lab ? 1 : 0
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.xlarge"
+  instance_type          = "t3.large"
   subnet_id              = aws_subnet.public[0].id
   key_name               = aws_key_pair.lab[0].key_name
   vpc_security_group_ids = [aws_security_group.wazuh[0].id]

@@ -11,3 +11,9 @@ id_*
 # Divers
 .scannerwork/
 .DS_Store
+.venv/
+__pycache__/
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
